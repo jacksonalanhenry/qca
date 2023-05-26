@@ -1,13 +1,19 @@
 import numpy as np
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 class qca_cell():
+    id = 0
     position = [0,0,0]
     polarization = 0
 
     def __init__(self, pos = [0,0,0]):
         self.position = pos
     
+    def print_cell(self):
+        print(self.id)
+        print(self.position)
+        print(self.polarization)
+
     def plot_cell(self, axes):
         # plot qca cell using Parametric equation of a Circle and polarization
         

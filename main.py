@@ -1,7 +1,14 @@
+import sys
+import matplotlib.pyplot as plt
 
-import qca_cell as qc
+sys.path.insert(0, '/home/jahenry/qca/cell_def`')
+#print(sys.path)
 
-mycell = qc.qca_cell()
-print(mycell.position)
+from cell_defs.qca_cell import *
 
-mycell.plot_cell()
+#import qca_cell
+
+
+mycell = qca_cell()
+
+mycell.print_cell()

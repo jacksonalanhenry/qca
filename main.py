@@ -6,24 +6,32 @@ sys.path.insert(0, '/home/jahenry/qca/cell_def`')
 
 from cell_defs.qca_cell import *
 
-#import qca_cell
-
-
-mycell = qca_cell()
-
-mycell.print_cell()
-
 
 #set up axes
 figure, axes = plt.subplots()
-
-axes.axis([-2, 4,-2, 4])
+axes.set_aspect( 1 )
+axes.axis([-2, 4, -2, 2])
 axes.axis("equal")
 
-mycell = qca_cell([0,1,0])
 
-mycell.draw_cell(axes)
+#set up the circuit
+driver = qca_cell([0,0,0])
+driver.driver = True
+cell1 = qca_cell([2,0,0])
 
-axes.set_aspect( 1 )
+
+driver.polarization = -.75
+cell1.activation = .66
+
+driver.angle = 45
+cell1.angle = 95
+
+circuit = [driver,cell1]
+
+for cell in circuit:
+    cell.draw_cell(axes)
+    cell.print_cell()
+
+
 plt.title( 'Circuit' )
 plt.show()

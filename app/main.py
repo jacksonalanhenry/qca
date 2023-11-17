@@ -19,11 +19,12 @@ driver = qca_cell([0,0,0])
 driver.driver = True
 cell1 = qca_cell([2,0,0])
 
+#cell1.driver = False
 
 driver.polarization = -.75
 cell1.activation = .66
 
-driver.angle = 45
+driver.angle = 15
 cell1.angle = 95
 
 circuit = [driver,cell1]
@@ -34,4 +35,6 @@ for cell in circuit:
 
 
 plt.title( 'Circuit' )
+#plt.show()
+plt.savefig('/qca/fig.png')
 plt.show()

@@ -1,2 +1,0 @@
-# qca
-# Jackson Henry

@@ -29,8 +29,8 @@ cell1.angle = 95
 circuit = [driver,cell1]
 
 for cell in circuit:
-    cell.draw_cell(axes)
     cell.print_cell()
+    cell.draw_cell(axes)
 
 
 plt.title( 'Circuit' )

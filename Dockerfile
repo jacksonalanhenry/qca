@@ -2,5 +2,5 @@
  RUN ln -snf /usr/share/zoneinfo/$CONTAINER_TIMEZONE /etc/localtime && echo $CONTAINER_TIMEZONE > /etc/timezone
  RUN apt-get update && apt-get install -y python3-tk python3-pip
  RUN pip3 install matplotlib
- COPY . /app
+ COPY ./app /app
  CMD /bin/bash

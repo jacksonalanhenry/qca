@@ -30,6 +30,13 @@ class qca_cell():
     neighborList = []; #this Cell's Neighbor id's
     
 
+    #hardcoded constants for now
+    qe = 1 # charge of electron
+    epsilon_0 = 8.854E-12;  # Vacuum Permitivity [C/(V*m)]
+    qeV2J = 1.602E-19;      # Conversion factor or Charge of Electron[J]
+    qeC2e = -1.60217662E-19;# J
+
+
 
     #Helpful operators we just keep around
     Z = np.array([[-1, 0, 0],
@@ -53,20 +60,34 @@ class qca_cell():
         " Position: " + str(self.center_position)
         print(cell_info)
 
-    def get_true_dot_position(self):
-        q1_xy = get_xy(self.angle,1)
-        q2_xy = get_xy(self.angle,0)
-        q3_xy = get_xy(self.angle,-1)
 
-        q1_xyz = np.append(q1_xy,1)
-        q2_xyz = np.append(q2_xy,0)
-        q3_xyz = np.append(q3_xy,-1)
+    #Calculates the potential that this qca cell is causing at some observation location
+    def calc_potential_at_obsv(self, obsvLocation):
+        selfDotPos = self.get_true_dot_position()
+        #calc the charge at each dot based on Act&Pol
+        qe = self.qe
+        time = 0
 
-        q1_pos = q1_xyz  * 0.5 + self.center_position
-        q2_pos = q2_xyz  * 0.5 + self.center_position
-        q3_pos = q3_xyz  * 0.5 + self.center_position
+        total_cell_charge = np.array([qe*self.activation*(1/2)*(1-self.get_polarization(time)), \
+                  1-self.activation-1, \
+                  qe*self.activation*(1/2)*(self.get_polarization(time)+1)])
+                  #-1 on qN is for the null charge of the null dot
+        charge_str = "q0: " + str(total_cell_charge[0]) + " qN: " + str(total_cell_charge[1]) +" q1: " + str(total_cell_charge[2])
+        #print(charge_str)
 
-        return [q1_pos,q2_pos,q3_pos]
+        #find distance between obsvLoc and each self.trueDotPosition()
+        distance = [1,1,1] # 'meters' basically
+        true_dot_pos = np.array(self.get_true_dot_position())
+        displacement = obsvLocation - true_dot_pos
+
+        distance = np.sum(np.square(displacement), axis = 1)
+
+        # charge_potential calc factored out times the sum of the charge on each dot after it has been divided by its
+        # distance from obsvLoc
+        distance_nm = np.multiply(distance,1e9)
+        potential = np.multiply((1/(4*math.pi*self.epsilon_0)*self.qeC2e) ,
+                                np.sum(np.divide(total_cell_charge,distance_nm)))
+
 
 
     def calc_polarization_activation(self, normpsi):
@@ -75,12 +96,33 @@ class qca_cell():
             return
         else:
             #given some normpsi, set wavefunc and calculate pol/act
-            self.Wavefunction = normpsi
-            self.Polarization = normpsi.transpose() * self.Z * normpsi
-            self.Activation = 1 - normpsi.transpose() * self.Pnn * normpsi
+            self.wavefunction = normpsi
+            self.polarization = normpsi.transpose() * self.Z * normpsi
+            self.activation = 1 - normpsi.transpose() * self.Pnn * normpsi
 
 
+    def calc_hamiltonian(self): #hardcoding mobile charge atm
+        dotPotential = [0,0,0]
+        dotPotential = self.potential_caused_by(neighbor(x))#potential at self_dots due to all others
 
+
+    def get_polarization(self, time):
+        return self.polarization
+
+    def get_true_dot_position(self):
+        q1_xy = get_xy(self.angle,1)
+        q2_xy = get_xy(self.angle,0)
+        q3_xy = get_xy(self.angle,-1)
+
+        q1_xyz = np.append(q1_xy,1)
+        q2_xyz = np.append(q2_xy,0)
+        q3_xyz = np.append(q3_xy,1)
+
+        q1_pos = q1_xyz  * 0.5 + self.center_position
+        q2_pos = q2_xyz  * 0.5 + self.center_position
+        q3_pos = q3_xyz  * 0.5 + self.center_position
+
+        return [q1_pos,q2_pos,q3_pos]
 
 
     def draw_cell(self, axes):

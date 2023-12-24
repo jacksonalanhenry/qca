@@ -1,4 +1,4 @@
-from cell_defs.qca_cell import *
+from cell_defs.qca_cell import qca_cell
 import sys
 import matplotlib.pyplot as plt
 

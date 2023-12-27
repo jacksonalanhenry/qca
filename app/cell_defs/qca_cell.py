@@ -61,6 +61,7 @@ class qca_cell():
         internal_potential = np.array([0.0, 0.0, 0.0])
 
         true_dot_pos = np.array(self.get_true_dot_position())
+        # print("Cell(", self.cellID, "): True Dot Pos:\n", true_dot_pos)
 
         # ZERO DOT
         displacement = true_dot_pos[0] - true_dot_pos[1]
@@ -77,6 +78,7 @@ class qca_cell():
         u23 = self.qe*h/distance
 
         internal_potential[2] = k*u23
+        print("Cell(", self.cellID, "): Internal Potential:", internal_potential)
         return internal_potential
 
     # Calculates the potential that this qca cell
@@ -93,28 +95,30 @@ class qca_cell():
         )
         # -1 on qN is for the null charge of the null dot
         # charge_str = "q0: " + str(total_cell_charge[0]) + " qN: " + str(
-        #    total_cell_charge[1]) + " q1: " + str(total_cell_charge[2])
+        #     total_cell_charge[1]) + " q1: " + str(total_cell_charge[2])
         # print(charge_str)
 
         # find distance between obsvLoc and each self.trueDotPosition()
-        distance = [1, 1, 1]  # 'meters' basically
+        distance = [1, 1, 1]  # meters
         true_dot_pos = np.array(self.get_true_dot_position())
         displacement = obsvLocation - true_dot_pos
 
-        distance = np.sum(np.square(displacement), axis=1)
+        distance = np.sqrt(np.sum(np.square(displacement), axis=1))
 
         # charge_potential calc factored out multiply by the sum of the charge
         # on each dot after it has been divided by its distance from obsvLoc
-        distance_nm = np.multiply(distance, 1e9)
+        distance_nm = np.multiply(distance, 1e-9)
         potential = np.multiply((1/(4*math.pi*self.epsilon_0)*self.qeC2e),
                                 np.sum(
                                 np.divide(total_cell_charge, distance_nm)))
+
         return potential
 
     def potential_caused_by_cell_list(self, neighbor_list=""):
         if not neighbor_list:
             neighbor_list = self.neighbor_list
         self_true_dot_pos = np.array(self.get_true_dot_position())
+
         self_pot_by_neighbors = np.zeros(np.shape(self_true_dot_pos)[0])
 
         for cell in neighbor_list:

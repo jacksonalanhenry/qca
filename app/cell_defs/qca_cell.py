@@ -95,9 +95,36 @@ class qca_cell():
             self.activation = 1 - normpsi.transpose() * self.Pnn * normpsi
 
     def calc_hamiltonian(self):  # hardcoding mobile charge atm
-        dotPotential = [0, 0, 0]
         # potential at self_dots due to all others
-        dotPotential = self.potential_caused_by(neighbor(x))
+        dot_potential = self.potential_caused_by_cell_list(self.neighborList)
+        print(dot_potential)
+
+        # gammaMatrix = -obj.Gamma*[0, 1, 0
+        #                           1, 0, 1
+        #                           0, 1, 0]
+
+        # obj.CellID
+        # hamiltonian = -diag(objDotpotential) + gammaMatrix
+
+        # h = abs(obj.DotPosition(2, 3)-obj.DotPosition(1, 3))
+        # %Field over entire height of cell
+        # x = abs(obj.DotPosition(3, 1)-obj.DotPosition(1, 1))
+        # y = abs(obj.DotPosition(3, 2)-obj.DotPosition(1, 2))
+        # lengthh = [x, y, 0]
+
+        # inputFieldBias = -obj.ElectricField*lengthh'
+
+        # hamiltonian(2, 2) = hamiltonian(2, 2) + -obj.ElectricField(1, 3)*h
+        # %add clock E
+        # hamiltonian(1, 1) = hamiltonian(1, 1) + (-inputFieldBias)/2
+        # %add input field to 0 dot
+        # hamiltonian(3, 3) = hamiltonian(3, 3) + inputFieldBias/2
+        # %add input field to 1 dot
+
+        # %Calculate internal potential and add them to hamiltonian
+        # hamiltonian(1, 1) = hamiltonian(1, 1) + obj.intP(1)
+        # hamiltonian(2, 2) = hamiltonian(2, 2) + obj.intP(2)
+        # hamiltonian(3, 3) = hamiltonian(3, 3) + obj.intP(3)
 
     def get_polarization(self, time):
         return self.polarization

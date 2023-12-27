@@ -15,7 +15,7 @@ class qca_cell():
     #                 0,-1,1; ]
     # dot_position = []
 
-    hamiltonian = np.array([[0, 0, 0],
+    hamiltonian = np.matrix([[0, 0, 0],
                             [0, 0, 0],
                             [0, 0, 0]])
 
@@ -54,6 +54,30 @@ class qca_cell():
             " Activation: " + str(self.activation) + \
             " Position: " + str(self.center_position)
         print(cell_info)
+
+    def internal_potential(self):
+        k = (1/(4*math.pi*self.epsilon_0)*self.qeC2e)
+        h = -1*self.qe
+        internal_potential = np.array([0.0, 0.0, 0.0])
+
+        true_dot_pos = np.array(self.get_true_dot_position())
+
+        # ZERO DOT
+        displacement = true_dot_pos[0] - true_dot_pos[1]
+        distance = np.sum(np.square(displacement))
+        u12 = self.qe*h/distance
+        internal_potential[0] = k*u12
+
+        # NULL DOT
+        internal_potential[1] = 0
+
+        # ONE DOT
+        displacement = true_dot_pos[1] - true_dot_pos[2]
+        distance = np.sum(np.square(displacement))
+        u23 = self.qe*h/distance
+
+        internal_potential[2] = k*u23
+        return internal_potential
 
     # Calculates the potential that this qca cell
     # is causing at some observation location
@@ -110,15 +134,13 @@ class qca_cell():
 
     def calc_hamiltonian(self):  # hardcoding mobile charge atm
         # potential at self_dots due to all others
-        dot_potential = self.potential_caused_by_cell_list(self.neighborList)
-        print(dot_potential)
+        dot_potential = self.potential_caused_by_cell_list(self.neighbor_list)
 
-        # gammaMatrix = -obj.Gamma*[0, 1, 0
-        #                           1, 0, 1
-        #                           0, 1, 0]
-
+        gamma_matrix = -self.gamma * np.matrix([[0, 1, 0],
+                                               [1, 0, 1],
+                                               [0, 1, 0]])
         # obj.CellID
-        # hamiltonian = -diag(objDotpotential) + gammaMatrix
+        hamiltonian = np.add(-1*np.diag(dot_potential), gamma_matrix)
 
         # h = abs(obj.DotPosition(2, 3)-obj.DotPosition(1, 3))
         # %Field over entire height of cell
@@ -135,10 +157,10 @@ class qca_cell():
         # hamiltonian(3, 3) = hamiltonian(3, 3) + inputFieldBias/2
         # %add input field to 1 dot
 
-        # %Calculate internal potential and add them to hamiltonian
-        # hamiltonian(1, 1) = hamiltonian(1, 1) + obj.intP(1)
-        # hamiltonian(2, 2) = hamiltonian(2, 2) + obj.intP(2)
-        # hamiltonian(3, 3) = hamiltonian(3, 3) + obj.intP(3)
+        # Calculate internal potential and add them to hamiltonian
+        hamiltonian = np.add(np.diag(self.internal_potential()), hamiltonian)
+
+        return hamiltonian
 
     def get_polarization(self, time):
         return self.polarization

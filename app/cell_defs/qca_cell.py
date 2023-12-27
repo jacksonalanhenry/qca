@@ -28,7 +28,7 @@ class qca_cell():
     # for now, 0 <--> 0.1265 for characteristic length
     # 1nm
     electric_field = [0, 0, 0]  # Electric Field [V/nm]
-    neighborList = []  # this Cell's Neighbor id's
+    neighbor_list = []  # this Cell's Neighbor id's
 
     # hardcoded constants for now
     qe = 1  # charge of electron

@@ -55,20 +55,21 @@ class qca_cell():
             " Position: " + str(self.center_position)
         print(cell_info)
 
-    # Calculates the potential that this qca cell is causing at some observation location
-
+    # Calculates the potential that this qca cell
+    # is causing at some observation location
     def calc_potential_at_obsv(self, obsvLocation):
-        selfDotPos = self.get_true_dot_position()
         # calc the charge at each dot based on Act&Pol
         qe = self.qe
         time = 0
 
-        total_cell_charge = np.array([qe*self.activation*(1/2)*(1-self.get_polarization(time)),
-                                      1-self.activation-1,
-                                      qe*self.activation*(1/2)*(self.get_polarization(time)+1)])
+        total_cell_charge = np.array(
+            [qe*self.activation*(1/2)*(1-self.get_polarization(time)),
+             1-self.activation-1,
+             qe*self.activation*(1/2)*(self.get_polarization(time)+1)]
+        )
         # -1 on qN is for the null charge of the null dot
-        charge_str = "q0: " + str(total_cell_charge[0]) + " qN: " + str(
-            total_cell_charge[1]) + " q1: " + str(total_cell_charge[2])
+        # charge_str = "q0: " + str(total_cell_charge[0]) + " qN: " + str(
+        #    total_cell_charge[1]) + " q1: " + str(total_cell_charge[2])
         # print(charge_str)
 
         # find distance between obsvLoc and each self.trueDotPosition()
@@ -78,11 +79,24 @@ class qca_cell():
 
         distance = np.sum(np.square(displacement), axis=1)
 
-        # charge_potential calc factored out times the sum of the charge on each dot after it has been divided by its
-        # distance from obsvLoc
+        # charge_potential calc factored out multiply by the sum of the charge
+        # on each dot after it has been divided by its distance from obsvLoc
         distance_nm = np.multiply(distance, 1e9)
         potential = np.multiply((1/(4*math.pi*self.epsilon_0)*self.qeC2e),
-                                np.sum(np.divide(total_cell_charge, distance_nm)))
+                                np.sum(
+                                np.divide(total_cell_charge, distance_nm)))
+        return potential
+
+    def potential_caused_by_cell_list(self, neighbor_list=""):
+        if not neighbor_list:
+            neighbor_list = self.neighbor_list
+        self_true_dot_pos = np.array(self.get_true_dot_position())
+        self_pot_by_neighbors = np.zeros(np.shape(self_true_dot_pos)[0])
+
+        for cell in neighbor_list:
+            for idx, dot in enumerate(self_true_dot_pos):
+                self_pot_by_neighbors[idx] += cell.calc_potential_at_obsv(dot)
+        return self_pot_by_neighbors
 
     def calc_polarization_activation(self, normpsi):
         if self.driver:

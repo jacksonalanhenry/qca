@@ -115,7 +115,7 @@ class qca_cell():
         return potential
 
     def potential_caused_by_cell_list(self, neighbor_list=""):
-        if not neighbor_list:
+        if len(neighbor_list) == 0:
             neighbor_list = self.neighbor_list
         self_true_dot_pos = np.array(self.get_true_dot_position())
 

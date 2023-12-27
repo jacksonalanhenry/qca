@@ -25,7 +25,6 @@ cell1.cellID = 1
 cell2 = qca_cell([2, 0, 0])
 cell2.cellID = 2
 
-# cell1.driver = False
 
 driver.polarization = .99
 cell1.activation = .66
@@ -34,7 +33,6 @@ driver.angle = 120
 cell1.angle = 90
 cell2.angle = 90
 
-# driver.calc_potential_at_obsv([1, 0, 0])
 cell1.neighbor_list = np.array([driver, cell2])
 cell2.neighbor_list = np.array([cell1])
 cell1.calc_hamiltonian()
@@ -48,6 +46,5 @@ for cell in circuit:
     cell.draw_cell(axes)
 
 plt.title('Circuit')
-# plt.show()
 plt.savefig('./fig.png')
 # plt.show()

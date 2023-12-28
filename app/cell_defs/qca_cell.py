@@ -15,7 +15,7 @@ class qca_cell():
     #                 0,-1,1; ]
     # dot_position = []
 
-    hamiltonian = np.matrix([[0, 0, 0],
+    hamiltonian = np.array([[0, 0, 0],
                             [0, 0, 0],
                             [0, 0, 0]])
 
@@ -37,11 +37,11 @@ class qca_cell():
     qeC2e = -1.60217662E-19  # J
 
     # Helpful operators we just keep around
-    Z = np.matrix([[-1, 0, 0],
+    Z = np.array([[-1, 0, 0],
                   [0, 0, 0],
                   [0, 0, 1]])
 
-    Pnn = np.matrix([[0, 0, 0],
+    Pnn = np.array([[0, 0, 0],
                     [0, 1, 0],
                     [0, 0, 0]])
 

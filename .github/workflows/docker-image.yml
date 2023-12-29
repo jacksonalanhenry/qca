@@ -23,7 +23,7 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         context: .
-        tags: qca:$(date +%s)
+        tags: qca:latest
         outputs: type=docker,dest=/tmp/qca-image.tar
     - name: Upload artifact
       uses: actions/upload-artifact@v3

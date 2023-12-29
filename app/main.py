@@ -3,7 +3,7 @@ import sys
 import matplotlib.pyplot as plt
 import numpy as np
 
-sys.path.insert(0, './cell_def`')
+# sys.path.insert(0, './cell_def`')
 # print(sys.path)
 
 

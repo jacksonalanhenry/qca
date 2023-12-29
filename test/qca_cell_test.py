@@ -1,5 +1,8 @@
-from app.cell_defs.qca_cell import *
+from cell_defs.qca_cell import *
 import math
+import sys
+
+sys.path.insert(0, './app')
 
 def test_get_xy():
     angles = [45, 90, 135, 180, 225, 270, 315, 360]

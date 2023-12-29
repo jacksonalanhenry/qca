@@ -19,6 +19,7 @@ def test_get_xy():
         return_val = get_xy(angle, radius)
         assert math.isclose(return_val[0], answers[idx][0], rel_tol=1e3)
         assert math.isclose(return_val[1], answers[idx][1], rel_tol=1e3)
+        assert False
 
 
 def test_calc_potential_at_obsv():

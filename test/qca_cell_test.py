@@ -1,4 +1,7 @@
-from app.cell_defs.qca_cell import qca_cell, get_xy
+from app.cell_defs.qca_cell import (
+    qca_cell,
+    get_xy,
+)
 import math
 import numpy as np
 
@@ -12,7 +15,14 @@ def test_calc_potential_at_obsv():
     driver.angle = 90
 
     # test points
-    obsv_locs = [[1, 0, 0], [2, 0, 0], [2, 2, 2], [-1, 0, 0], [-2, 0, 0], [-2, -2, -2]]
+    obsv_locs = [
+        [1, 0, 0],
+        [2, 0, 0],
+        [2, 2, 2],
+        [-1, 0, 0],
+        [-2, 0, 0],
+        [-2, -2, -2],
+    ]
 
     # manually calculated
     answers = [
@@ -30,7 +40,12 @@ def test_calc_potential_at_obsv():
 
 
 def test_get_true_dot_position():
-    obsv_locs = [[1, 0, 0], [2, 2, 2], [-1, 0, 0], [-2, -2, -2]]
+    obsv_locs = [
+        [1, 0, 0],
+        [2, 2, 2],
+        [-1, 0, 0],
+        [-2, -2, -2],
+    ]
     answers = [
         [
             np.array([1.0, 0.5, 0.5]),
@@ -64,7 +79,16 @@ def test_get_true_dot_position():
 
 
 def test_get_xy():
-    angles = [45, 90, 135, 180, 225, 270, 315, 360]
+    angles = [
+        45,
+        90,
+        135,
+        180,
+        225,
+        270,
+        315,
+        360,
+    ]
     answers = [
         [0.707106, 0.707106],
         [0, 1],
@@ -78,5 +102,13 @@ def test_get_xy():
     radius = 1
     for idx, angle in enumerate(angles):
         return_val = get_xy(angle, radius)
-        assert math.isclose(return_val[0], answers[idx][0], rel_tol=1e3)
-        assert math.isclose(return_val[1], answers[idx][1], rel_tol=1e3)
+        assert math.isclose(
+            return_val[0],
+            answers[idx][0],
+            rel_tol=1e3,
+        )
+        assert math.isclose(
+            return_val[1],
+            answers[idx][1],
+            rel_tol=1e3,
+        )

@@ -43,10 +43,16 @@ class qca_cell:
         self.center_position = pos
 
     def print_cell(self):
-        cell_info = ("Cell: " + str(self.cellID) + " Polarization: " +
-                     str(self.polarization) + " Activation: " +
-                     str(self.activation) + " Position: " +
-                     str(self.center_position))
+        cell_info = (
+            "Cell: "
+            + str(self.cellID)
+            + " Polarization: "
+            + str(self.polarization)
+            + " Activation: "
+            + str(self.activation)
+            + " Position: "
+            + str(self.center_position)
+        )
         print(cell_info)
 
     def internal_potential(self):
@@ -72,8 +78,7 @@ class qca_cell:
         u23 = self.qe * h / distance
 
         internal_potential[2] = k * u23
-        print("Cell(", self.cellID, "): Internal Potential:",
-              internal_potential)
+        print("Cell(", self.cellID, "): Internal Potential:", internal_potential)
         return internal_potential
 
     # Calculates the potential that this qca cell
@@ -83,11 +88,13 @@ class qca_cell:
         qe = self.qe
         time = 0
 
-        total_cell_charge = np.array([
-            qe * self.activation * (1 / 2) * (1 - self.get_polarization(time)),
-            1 - self.activation - 1,
-            qe * self.activation * (1 / 2) * (self.get_polarization(time) + 1),
-        ])
+        total_cell_charge = np.array(
+            [
+                qe * self.activation * (1 / 2) * (1 - self.get_polarization(time)),
+                1 - self.activation - 1,
+                qe * self.activation * (1 / 2) * (self.get_polarization(time) + 1),
+            ]
+        )
         # -1 on qN is for the null charge of the null dot
         # charge_str = "q0: " + str(total_cell_charge[0]) + " qN: " + str(
         #     total_cell_charge[1]) + " q1: " + str(total_cell_charge[2])
@@ -140,10 +147,8 @@ class qca_cell:
                 normpsi = eig_vecs[:, 0]  # ground state
 
             self.wavefunction = normpsi
-            self.polarization = np.matmul(
-                np.matmul(normpsi.transpose(), self.Z), normpsi)
-            self.activation = 1 - np.matmul(
-                np.matmul(normpsi.transpose(), self.Pnn), normpsi)
+            self.polarization = np.matmul(np.matmul(normpsi.transpose(), self.Z), normpsi)
+            self.activation = 1 - np.matmul(np.matmul(normpsi.transpose(), self.Pnn), normpsi)
             print(self.wavefunction)
             print(self.polarization)
             print(self.activation)
@@ -154,8 +159,7 @@ class qca_cell:
         dot_potential = self.potential_caused_by_cell_list(self.neighbor_list)
         print("Cell(", self.cellID, "): Dot Potentials:", dot_potential)
 
-        gamma_matrix = -self.gamma * np.matrix([[0, 1, 0], [1, 0, 1],
-                                                [0, 1, 0]])
+        gamma_matrix = -self.gamma * np.matrix([[0, 1, 0], [1, 0, 1], [0, 1, 0]])
         hamiltonian = np.add(-1 * np.diag(dot_potential), gamma_matrix)
 
         print("Cell(", self.cellID, "): Hamiltonian:\n", hamiltonian)
@@ -167,12 +171,14 @@ class qca_cell:
         # lengthh = [x, y, 0]
 
         # inputFieldBias = -obj.ElectricField*lengthh'
-        Eo = (np.square(self.qe) * (self.qeV2J) /
-              (4 * math.pi * self.epsilon_0 * self.characteristic_length *
-               1e-9) * (1 - 1 / math.sqrt(2)))
+        Eo = (
+            np.square(self.qe)
+            * (self.qeV2J)
+            / (4 * math.pi * self.epsilon_0 * self.characteristic_length * 1e-9)
+            * (1 - 1 / math.sqrt(2))
+        )
         kink_strength = 0.1
-        print("Cell(", self.cellID, "): ", kink_strength, "*Eo:\n",
-              kink_strength * Eo)
+        print("Cell(", self.cellID, "): ", kink_strength, "*Eo:\n", kink_strength * Eo)
 
         hamiltonian[1, 1] = hamiltonian[1, 1] + kink_strength * Eo
         print("Cell(", self.cellID, "): Hamiltonian:\n", hamiltonian)
@@ -213,33 +219,28 @@ class qca_cell:
         # define dot sites
         radius = 0.25
         q0_site = plt.Circle(q0_pos[:2], radius, ec="Black", fc="White")
-        qN_site = plt.Circle(qN_pos[:2],
-                             radius * 3 / 4,
-                             ec="Black",
-                             fc="White")
+        qN_site = plt.Circle(qN_pos[:2], radius * 3 / 4, ec="Black", fc="White")
         q1_site = plt.Circle(q1_pos[:2], radius, ec="Black", fc="White")
 
         # define lines
         pt1_1 = get_xy(self.angle, radius * 3 / 4) + np.array(
-            [self.center_position[0], self.center_position[1]])
+            [self.center_position[0], self.center_position[1]]
+        )
 
-        pt1_2 = get_xy(self.angle,
-                       0.5 * self.characteristic_length - radius) + np.array(
-                           [self.center_position[0], self.center_position[1]])
+        pt1_2 = get_xy(self.angle, 0.5 * self.characteristic_length - radius) + np.array(
+            [self.center_position[0], self.center_position[1]]
+        )
 
         pt2_1 = get_xy(self.angle, -radius * 3 / 4) + np.array(
-            [self.center_position[0], self.center_position[1]])
+            [self.center_position[0], self.center_position[1]]
+        )
 
-        pt2_2 = get_xy(self.angle,
-                       -0.5 * self.characteristic_length + radius) + np.array(
-                           [self.center_position[0], self.center_position[1]])
+        pt2_2 = get_xy(self.angle, -0.5 * self.characteristic_length + radius) + np.array(
+            [self.center_position[0], self.center_position[1]]
+        )
 
-        line1 = plt.Line2D([pt1_1[0], pt1_2[0]], [pt1_1[1], pt1_2[1]],
-                           linewidth=1.5,
-                           c="Black")
-        line2 = plt.Line2D([pt2_1[0], pt2_2[0]], [pt2_1[1], pt2_2[1]],
-                           linewidth=1.5,
-                           c="Black")
+        line1 = plt.Line2D([pt1_1[0], pt1_2[0]], [pt1_1[1], pt1_2[1]], linewidth=1.5, c="Black")
+        line2 = plt.Line2D([pt2_1[0], pt2_2[0]], [pt2_1[1], pt2_2[1]], linewidth=1.5, c="Black")
 
         # draw electron polarization
         q0 = (self.activation / 2) * (1 - self.polarization)
@@ -255,18 +256,9 @@ class qca_cell:
         else:
             color = "red"
 
-        e0 = plt.Circle(q0_pos[:2],
-                        q0 * scalefactor * radius,
-                        ec=color,
-                        fc=color)
-        eN = plt.Circle(qN_pos[:2],
-                        qN * scalefactor * radius * 3 / 4,
-                        ec=color,
-                        fc=color)
-        e1 = plt.Circle(q1_pos[:2],
-                        q1 * scalefactor * radius,
-                        ec=color,
-                        fc=color)
+        e0 = plt.Circle(q0_pos[:2], q0 * scalefactor * radius, ec=color, fc=color)
+        eN = plt.Circle(qN_pos[:2], qN * scalefactor * radius * 3 / 4, ec=color, fc=color)
+        e1 = plt.Circle(q1_pos[:2], q1 * scalefactor * radius, ec=color, fc=color)
 
         # add everything to patches list
         patches = [line1, line2, q0_site, qN_site, q1_site, e0, eN, e1]

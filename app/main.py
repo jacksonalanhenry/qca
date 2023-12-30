@@ -26,8 +26,8 @@ cell2 = qca_cell([2, 0, 0])
 cell2.cellID = 2
 
 
-driver.polarization = .99
-cell1.activation = .66
+driver.polarization = 0.99
+cell1.activation = 0.66
 
 driver.angle = 120
 cell1.angle = 90
@@ -45,6 +45,6 @@ for cell in circuit:
     cell.print_cell()
     cell.draw_cell(axes)
 
-plt.title('Circuit')
-plt.savefig('./fig.png')
+plt.title("Circuit")
+plt.savefig("./fig.png")
 # plt.show()

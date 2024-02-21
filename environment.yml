@@ -1,0 +1,6 @@
+name: qca
+dependencies:
+  - tk
+  - numpy
+  - matplotlib
+  - pytest

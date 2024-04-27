@@ -10,7 +10,7 @@ import numpy as np
 # set up axes
 figure, axes = plt.subplots()
 axes.set_aspect(1)
-axes.axis([-2, 6, -2, 2])
+axes.axis([-4, 6, -2, 2])
 axes.axis("equal")
 
 
@@ -27,7 +27,7 @@ cell2.cellID = 2
 
 
 driver.polarization = 0.99
-cell1.activation = 0.66
+driver.activation = 0.66
 
 driver.angle = 120
 cell1.angle = 90
@@ -39,12 +39,12 @@ cell1.calc_hamiltonian()
 cell1.calc_polarization_activation()
 
 
-circuit = [driver, cell1]
+circuit = [driver, cell1, cell2]
 
 for cell in circuit:
     cell.print_cell()
     cell.draw_cell(axes)
 
-plt.title("Circuit")
-plt.savefig("./fig.png")
-# plt.show()
+# plt.title("Circuit")
+# plt.savefig("./fig.png")
+plt.show()

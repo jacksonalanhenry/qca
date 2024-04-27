@@ -133,26 +133,25 @@ class qca_cell:
         if self.driver:
             # don't relax drivers
             return
-        else:
-            # given some normpsi, set wavefunc and calculate pol/act
-            if not normpsi:
-                [eig_vals, eig_vecs] = np.linalg.eig(self.hamiltonian)
+        # given some normpsi, set wavefunc and calculate pol/act
+        if not normpsi:
+            [eig_vals, eig_vecs] = np.linalg.eig(self.hamiltonian)
 
-                idx = eig_vals.argsort()
-                eig_vals = eig_vals[idx]
-                eig_vecs = eig_vecs[:, idx]
+            idx = eig_vals.argsort()
+            eig_vals = eig_vals[idx]
+            eig_vecs = eig_vecs[:, idx]
 
-                print("eigVals: ", eig_vals)
-                print("eigVecs:\n", eig_vecs)
-                normpsi = eig_vecs[:, 0]  # ground state
+            print("eigVals: ", eig_vals)
+            print("eigVecs:\n", eig_vecs)
+            normpsi = eig_vecs[:, 0]  # ground state
 
-            self.wavefunction = normpsi
-            self.polarization = np.matmul(np.matmul(normpsi.transpose(), self.Z), normpsi)
-            self.activation = 1 - np.matmul(np.matmul(normpsi.transpose(), self.Pnn), normpsi)
-            print(self.wavefunction)
-            print(self.polarization)
-            print(self.activation)
-            print("end")
+        self.wavefunction = normpsi
+        self.polarization = np.matmul(np.matmul(normpsi.transpose(), self.Z), normpsi)
+        self.activation = 1 - np.matmul(np.matmul(normpsi.transpose(), self.Pnn), normpsi)
+        print(self.wavefunction)
+        print(self.polarization)
+        print(self.activation)
+        print("end")
 
     def calc_hamiltonian(self):  # hardcoding mobile charge atm
         # potential at self_dots due to all others
@@ -164,13 +163,15 @@ class qca_cell:
 
         print("Cell(", self.cellID, "): Hamiltonian:\n", hamiltonian)
 
-        # h = abs(obj.DotPosition(2, 3)-obj.DotPosition(1, 3))
+        [q0_pos, qN_pos, q1_pos] = self.get_true_dot_position()
+        #h = abs(obj.DotPosition(2, 3)-obj.DotPosition(1, 3))
+        h = abs(q0_pos - qN_pos)
         # %Field over entire height of cell
         # x = abs(obj.DotPosition(3, 1)-obj.DotPosition(1, 1))
         # y = abs(obj.DotPosition(3, 2)-obj.DotPosition(1, 2))
-        # lengthh = [x, y, 0]
+        lengthh = np.array([x, y, 0])
 
-        # inputFieldBias = -obj.ElectricField*lengthh'
+        inputFieldBias = -self.electric_field * lengthh.transpose()
         Eo = (
             np.square(self.qe)
             * (self.qeV2J)
@@ -180,13 +181,17 @@ class qca_cell:
         kink_strength = 0.1
         print("Cell(", self.cellID, "): ", kink_strength, "*Eo:\n", kink_strength * Eo)
 
+
+        # add kink strength
         hamiltonian[1, 1] = hamiltonian[1, 1] + kink_strength * Eo
+        # add clock E
+        hamiltonian[1, 1] = hamiltonian[1, 1] + self.electric_field * h
         print("Cell(", self.cellID, "): Hamiltonian:\n", hamiltonian)
-        # %add clock E
-        # hamiltonian(1, 1) = hamiltonian(1, 1) + (-inputFieldBias)/2
+        
         # %add input field to 0 dot
-        # hamiltonian(3, 3) = hamiltonian(3, 3) + inputFieldBias/2
+        # hamiltonian[0, 0] = hamiltonian[0, 0] + (-inputFieldBias)/2
         # %add input field to 1 dot
+        # hamiltonian[2, 2] = hamiltonian[2, 2] + inputFieldBias/2
 
         # Calculate internal potential and add them to hamiltonian
         hamiltonian = np.add(np.diag(self.internal_potential()), hamiltonian)

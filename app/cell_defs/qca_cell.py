@@ -25,7 +25,7 @@ class qca_cell:
     gamma = 0.05  # [eV] from Henry, Blair 2017: 0 < gamma < 0.3*Ek
     # for now, 0 <--> 0.1265 for characteristic length
     # 1nm
-    electric_field = [0, 0, 0]  # Electric Field [V/nm]
+    electric_field = np.array([0, 0, 0])  # Electric Field [V/nm]
     neighbor_list = []  # this Cell's Neighbor id's
 
     # hardcoded constants for now
@@ -64,7 +64,7 @@ class qca_cell:
         # print("Cell(", self.cellID, "): True Dot Pos:\n", true_dot_pos)
 
         # ZERO DOT
-        displacement = true_dot_pos[0] - true_dot_pos[1]
+        displacement = np.subtract(true_dot_pos[0], true_dot_pos[1])
         distance = np.sum(np.square(displacement))
         u12 = self.qe * h / distance
         internal_potential[0] = k * u12
@@ -73,7 +73,7 @@ class qca_cell:
         internal_potential[1] = 0
 
         # ONE DOT
-        displacement = true_dot_pos[1] - true_dot_pos[2]
+        displacement = np.subtract(true_dot_pos[1], true_dot_pos[2])
         distance = np.sum(np.square(displacement))
         u23 = self.qe * h / distance
 
@@ -90,9 +90,9 @@ class qca_cell:
 
         total_cell_charge = np.array(
             [
-                qe * self.activation * (1 / 2) * (1 - self.get_polarization(time)),
-                1 - self.activation - 1,
-                qe * self.activation * (1 / 2) * (self.get_polarization(time) + 1),
+                qe * self.get_activation(time) * (0.5) * (1 - self.get_polarization(time)),
+                1 - self.get_activation(time) - 1,
+                qe * self.get_activation(time) * (0.5) * (self.get_polarization(time) + 1),
             ]
         )
         # -1 on qN is for the null charge of the null dot
@@ -101,9 +101,9 @@ class qca_cell:
         # print(charge_str)
 
         # find distance between obsvLoc and each self.trueDotPosition()
-        distance = [1, 1, 1]  # meters
+        distance = np.array([1, 1, 1])  # meters
         true_dot_pos = np.array(self.get_true_dot_position())
-        displacement = obsvLocation - true_dot_pos
+        displacement = np.subtract(obsvLocation, true_dot_pos)
 
         distance = np.sqrt(np.sum(np.square(displacement), axis=1))
 
@@ -127,32 +127,33 @@ class qca_cell:
         for cell in neighbor_list:
             for idx, dot in enumerate(self_true_dot_pos):
                 self_pot_by_neighbors[idx] += cell.calc_potential_at_obsv(dot)
+
         return self_pot_by_neighbors
 
     def calc_polarization_activation(self, normpsi=""):
         if self.driver:
             # don't relax drivers
             return
-        else:
-            # given some normpsi, set wavefunc and calculate pol/act
-            if not normpsi:
-                [eig_vals, eig_vecs] = np.linalg.eig(self.hamiltonian)
+        # given some normpsi, set wavefunc and calculate pol/act
+        if not normpsi:
+            [eig_vals, eig_vecs] = np.linalg.eig(self.hamiltonian)
 
-                idx = eig_vals.argsort()
-                eig_vals = eig_vals[idx]
-                eig_vecs = eig_vecs[:, idx]
+            idx = eig_vals.argsort()
+            eig_vals = eig_vals[idx]
+            eig_vecs = eig_vecs[:, idx]
 
-                print("eigVals: ", eig_vals)
-                print("eigVecs:\n", eig_vecs)
-                normpsi = eig_vecs[:, 0]  # ground state
+            print("eigVals: ", eig_vals)
+            print("eigVecs:\n", eig_vecs)
+            normpsi = eig_vecs[:, 0]  # ground state
 
-            self.wavefunction = normpsi
-            self.polarization = np.matmul(np.matmul(normpsi.transpose(), self.Z), normpsi)
-            self.activation = 1 - np.matmul(np.matmul(normpsi.transpose(), self.Pnn), normpsi)
-            print(self.wavefunction)
-            print(self.polarization)
-            print(self.activation)
-            print("end")
+        self.wavefunction = normpsi
+        self.polarization = np.matmul(np.matmul(normpsi.transpose(), self.Z), normpsi)
+        self.activation = 1 - np.matmul(np.matmul(normpsi.transpose(), self.Pnn), normpsi)
+
+        print(self.wavefunction)
+        print(self.polarization)
+        print(self.activation)
+        print("end")
 
     def calc_hamiltonian(self):  # hardcoding mobile charge atm
         # potential at self_dots due to all others
@@ -164,13 +165,12 @@ class qca_cell:
 
         print("Cell(", self.cellID, "): Hamiltonian:\n", hamiltonian)
 
-        # h = abs(obj.DotPosition(2, 3)-obj.DotPosition(1, 3))
-        # %Field over entire height of cell
+        [q0_pos, qN_pos, q1_pos] = self.get_true_dot_position()
+        # Field over entire height of cell
+        h = abs(q0_pos[2] - qN_pos[2])
         # x = abs(obj.DotPosition(3, 1)-obj.DotPosition(1, 1))
         # y = abs(obj.DotPosition(3, 2)-obj.DotPosition(1, 2))
-        # lengthh = [x, y, 0]
 
-        # inputFieldBias = -obj.ElectricField*lengthh'
         Eo = (
             np.square(self.qe)
             * (self.qeV2J)
@@ -180,13 +180,16 @@ class qca_cell:
         kink_strength = 0.1
         print("Cell(", self.cellID, "): ", kink_strength, "*Eo:\n", kink_strength * Eo)
 
+        # add kink strength
         hamiltonian[1, 1] = hamiltonian[1, 1] + kink_strength * Eo
+        # add clock E
+        hamiltonian[1, 1] = hamiltonian[1, 1] + self.electric_field[2] * h
         print("Cell(", self.cellID, "): Hamiltonian:\n", hamiltonian)
-        # %add clock E
-        # hamiltonian(1, 1) = hamiltonian(1, 1) + (-inputFieldBias)/2
+
         # %add input field to 0 dot
-        # hamiltonian(3, 3) = hamiltonian(3, 3) + inputFieldBias/2
+        # hamiltonian[0, 0] = hamiltonian[0, 0] + (-inputFieldBias)/2
         # %add input field to 1 dot
+        # hamiltonian[2, 2] = hamiltonian[2, 2] + inputFieldBias/2
 
         # Calculate internal potential and add them to hamiltonian
         hamiltonian = np.add(np.diag(self.internal_potential()), hamiltonian)
@@ -195,7 +198,30 @@ class qca_cell:
         return hamiltonian
 
     def get_polarization(self, time=""):
-        return self.polarization
+        if isinstance(self.polarization, int):
+            return float(self.polarization)
+
+        if isinstance(self.polarization, float):
+            return self.polarization
+
+        if self.polarization.size == 1:
+            return self.polarization.item()
+        else:
+            print("ERROR")
+            return 0
+
+    def get_activation(self, time=""):
+        if isinstance(self.activation, int):
+            return float(self.activation)
+
+        if isinstance(self.activation, float):
+            return self.activation
+
+        if self.activation.size == 1:
+            return self.activation.item()
+        else:
+            print("ERROR")
+            return 0
 
     def get_true_dot_position(self):
         q1_xy = get_xy(self.angle, 1)
@@ -210,9 +236,9 @@ class qca_cell:
         q2_pos = q2_xyz * 0.5 + self.center_position
         q3_pos = q3_xyz * 0.5 + self.center_position
 
-        return [q1_pos, q2_pos, q3_pos]
+        return np.array([q1_pos, q2_pos, q3_pos])
 
-    def draw_cell(self, axes):
+    def draw_cell(self, axes, time=""):
         # Get dot positions
         [q0_pos, qN_pos, q1_pos] = self.get_true_dot_position()
 
@@ -243,9 +269,9 @@ class qca_cell:
         line2 = plt.Line2D([pt2_1[0], pt2_2[0]], [pt2_1[1], pt2_2[1]], linewidth=1.5, c="Black")
 
         # draw electron polarization
-        q0 = (self.activation / 2) * (1 - self.polarization)
-        qN = 1 - self.activation
-        q1 = (self.activation / 2) * (1 + self.polarization)
+        q0 = (self.get_activation(time) / 2) * (1 - self.get_polarization(time))
+        qN = 1 - self.get_activation(time)
+        q1 = (self.get_activation(time) / 2) * (1 + self.get_polarization(time))
 
         # print(q0, qN, q1)
 

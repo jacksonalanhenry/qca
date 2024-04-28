@@ -32,4 +32,4 @@ jobs:
       run: |
         conda list
         conda install pytest
-        pytest
+        python -m pytest

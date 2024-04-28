@@ -166,9 +166,9 @@ class qca_cell:
         print("Cell(", self.cellID, "): Hamiltonian:\n", hamiltonian)
 
         [q0_pos, qN_pos, q1_pos] = self.get_true_dot_position()
-        #h = abs(obj.DotPosition(2, 3)-obj.DotPosition(1, 3))
-        h = abs(q0_pos - qN_pos)
-        # %Field over entire height of cell
+        # h = abs(obj.DotPosition(2, 3)-obj.DotPosition(1, 3))
+        # Field over entire height of cell
+        h = abs(q0_pos[2] - qN_pos[2])
         # x = abs(obj.DotPosition(3, 1)-obj.DotPosition(1, 1))
         # y = abs(obj.DotPosition(3, 2)-obj.DotPosition(1, 2))
         lengthh = np.array([x, y, 0])
@@ -181,15 +181,15 @@ class qca_cell:
             * (1 - 1 / math.sqrt(2))
         )
         kink_strength = 0.1
-        print("Cell(", self.cellID, "): ", kink_strength, "*Eo:\n", kink_strength * Eo)
-
+        print("Cell(", self.cellID, "): ", kink_strength,
+              "*Eo:\n", kink_strength * Eo)
 
         # add kink strength
         hamiltonian[1, 1] = hamiltonian[1, 1] + kink_strength * Eo
         # add clock E
-        hamiltonian[1, 1] = hamiltonian[1, 1] + self.electric_field * h
+        hamiltonian[1, 1] = hamiltonian[1, 1] + self.electric_field[2] * h
         print("Cell(", self.cellID, "): Hamiltonian:\n", hamiltonian)
-        
+
         # %add input field to 0 dot
         # hamiltonian[0, 0] = hamiltonian[0, 0] + (-inputFieldBias)/2
         # %add input field to 1 dot

@@ -90,9 +90,11 @@ class qca_cell:
 
         total_cell_charge = np.array(
             [
-                qe * self.activation * (1 / 2) * (1 - self.get_polarization(time)),
-                1 - self.activation - 1,
-                qe * self.activation * (1 / 2) * (self.get_polarization(time) + 1),
+                qe * self.get_activation(time) * (0.5) *
+                (1 - self.get_polarization(time)),
+                1 - self.get_activation(time) - 1,
+                qe * self.get_activation(time) * (0.5) *
+                (self.get_polarization(time) + 1),
             ]
         )
         # -1 on qN is for the null charge of the null dot
@@ -200,7 +202,26 @@ class qca_cell:
         return hamiltonian
 
     def get_polarization(self, time=""):
-        return self.polarization
+
+        if (isinstance(self.polarization, float)):
+            return self.polarization
+
+        if self.polarization.size == 1:
+            return self.polarization.item()
+        else:
+            print("ERROR")
+            return 0
+
+    def get_activation(self, time=""):
+
+        if (isinstance(self.activation, float)):
+            return self.activation
+
+        if self.activation.size == 1:
+            return self.activation.item()
+        else:
+            print("ERROR")
+            return 0
 
     def get_true_dot_position(self):
         q1_xy = get_xy(self.angle, 1)
@@ -217,7 +238,7 @@ class qca_cell:
 
         return np.array([q1_pos, q2_pos, q3_pos])
 
-    def draw_cell(self, axes):
+    def draw_cell(self, axes, time=""):
         # Get dot positions
         [q0_pos, qN_pos, q1_pos] = self.get_true_dot_position()
 
@@ -248,9 +269,11 @@ class qca_cell:
         line2 = plt.Line2D([pt2_1[0], pt2_2[0]], [pt2_1[1], pt2_2[1]], linewidth=1.5, c="Black")
 
         # draw electron polarization
-        q0 = (self.activation / 2) * (1 - self.polarization)
-        qN = 1 - self.activation
-        q1 = (self.activation / 2) * (1 + self.polarization)
+        q0 = (self.get_activation(time) / 2) * \
+            (1 - self.get_polarization(time))
+        qN = 1 - self.get_activation(time)
+        q1 = (self.get_activation(time) / 2) * \
+            (1 + self.get_polarization(time))
 
         # print(q0, qN, q1)
 

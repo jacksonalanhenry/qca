@@ -101,9 +101,9 @@ class qca_cell:
         # print(charge_str)
 
         # find distance between obsvLoc and each self.trueDotPosition()
-        distance = [1, 1, 1]  # meters
+        distance = np.array([1, 1, 1])  # meters
         true_dot_pos = np.array(self.get_true_dot_position())
-        displacement = obsvLocation - true_dot_pos
+        displacement = np.subtract(obsvLocation, true_dot_pos)
 
         distance = np.sqrt(np.sum(np.square(displacement), axis=1))
 

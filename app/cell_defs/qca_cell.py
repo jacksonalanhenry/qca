@@ -25,7 +25,7 @@ class qca_cell:
     gamma = 0.05  # [eV] from Henry, Blair 2017: 0 < gamma < 0.3*Ek
     # for now, 0 <--> 0.1265 for characteristic length
     # 1nm
-    electric_field = [0, 0, 0]  # Electric Field [V/nm]
+    electric_field = np.array([0, 0, 0])  # Electric Field [V/nm]
     neighbor_list = []  # this Cell's Neighbor id's
 
     # hardcoded constants for now
@@ -64,7 +64,7 @@ class qca_cell:
         # print("Cell(", self.cellID, "): True Dot Pos:\n", true_dot_pos)
 
         # ZERO DOT
-        displacement = true_dot_pos[0] - true_dot_pos[1]
+        displacement = np.subtract(true_dot_pos[0], true_dot_pos[1])
         distance = np.sum(np.square(displacement))
         u12 = self.qe * h / distance
         internal_potential[0] = k * u12
@@ -73,7 +73,7 @@ class qca_cell:
         internal_potential[1] = 0
 
         # ONE DOT
-        displacement = true_dot_pos[1] - true_dot_pos[2]
+        displacement = np.subtract(true_dot_pos[1], true_dot_pos[2])
         distance = np.sum(np.square(displacement))
         u23 = self.qe * h / distance
 
@@ -215,7 +215,7 @@ class qca_cell:
         q2_pos = q2_xyz * 0.5 + self.center_position
         q3_pos = q3_xyz * 0.5 + self.center_position
 
-        return [q1_pos, q2_pos, q3_pos]
+        return np.array([q1_pos, q2_pos, q3_pos])
 
     def draw_cell(self, axes):
         # Get dot positions

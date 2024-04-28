@@ -90,11 +90,9 @@ class qca_cell:
 
         total_cell_charge = np.array(
             [
-                qe * self.get_activation(time) * (0.5) *
-                (1 - self.get_polarization(time)),
+                qe * self.get_activation(time) * (0.5) * (1 - self.get_polarization(time)),
                 1 - self.get_activation(time) - 1,
-                qe * self.get_activation(time) * (0.5) *
-                (self.get_polarization(time) + 1),
+                qe * self.get_activation(time) * (0.5) * (self.get_polarization(time) + 1),
             ]
         )
         # -1 on qN is for the null charge of the null dot
@@ -149,10 +147,8 @@ class qca_cell:
             normpsi = eig_vecs[:, 0]  # ground state
 
         self.wavefunction = normpsi
-        self.polarization = np.matmul(
-            np.matmul(normpsi.transpose(), self.Z), normpsi)
-        self.activation = 1 - \
-            np.matmul(np.matmul(normpsi.transpose(), self.Pnn), normpsi)
+        self.polarization = np.matmul(np.matmul(normpsi.transpose(), self.Z), normpsi)
+        self.activation = 1 - np.matmul(np.matmul(normpsi.transpose(), self.Pnn), normpsi)
 
         print(self.wavefunction)
         print(self.polarization)
@@ -164,8 +160,7 @@ class qca_cell:
         dot_potential = self.potential_caused_by_cell_list(self.neighbor_list)
         print("Cell(", self.cellID, "): Dot Potentials:", dot_potential)
 
-        gamma_matrix = -self.gamma * \
-            np.matrix([[0, 1, 0], [1, 0, 1], [0, 1, 0]])
+        gamma_matrix = -self.gamma * np.matrix([[0, 1, 0], [1, 0, 1], [0, 1, 0]])
         hamiltonian = np.add(-1 * np.diag(dot_potential), gamma_matrix)
 
         print("Cell(", self.cellID, "): Hamiltonian:\n", hamiltonian)
@@ -183,8 +178,7 @@ class qca_cell:
             * (1 - 1 / math.sqrt(2))
         )
         kink_strength = 0.1
-        print("Cell(", self.cellID, "): ", kink_strength,
-              "*Eo:\n", kink_strength * Eo)
+        print("Cell(", self.cellID, "): ", kink_strength, "*Eo:\n", kink_strength * Eo)
 
         # add kink strength
         hamiltonian[1, 1] = hamiltonian[1, 1] + kink_strength * Eo
@@ -204,8 +198,10 @@ class qca_cell:
         return hamiltonian
 
     def get_polarization(self, time=""):
+        if isinstance(self.polarization, int):
+            return float(self.polarization)
 
-        if (isinstance(self.polarization, float)):
+        if isinstance(self.polarization, float):
             return self.polarization
 
         if self.polarization.size == 1:
@@ -215,8 +211,10 @@ class qca_cell:
             return 0
 
     def get_activation(self, time=""):
+        if isinstance(self.activation, int):
+            return float(self.activation)
 
-        if (isinstance(self.activation, float)):
+        if isinstance(self.activation, float):
             return self.activation
 
         if self.activation.size == 1:
@@ -247,8 +245,7 @@ class qca_cell:
         # define dot sites
         radius = 0.25
         q0_site = plt.Circle(q0_pos[:2], radius, ec="Black", fc="White")
-        qN_site = plt.Circle(qN_pos[:2], radius *
-                             3 / 4, ec="Black", fc="White")
+        qN_site = plt.Circle(qN_pos[:2], radius * 3 / 4, ec="Black", fc="White")
         q1_site = plt.Circle(q1_pos[:2], radius, ec="Black", fc="White")
 
         # define lines
@@ -268,17 +265,13 @@ class qca_cell:
             [self.center_position[0], self.center_position[1]]
         )
 
-        line1 = plt.Line2D([pt1_1[0], pt1_2[0]], [
-                           pt1_1[1], pt1_2[1]], linewidth=1.5, c="Black")
-        line2 = plt.Line2D([pt2_1[0], pt2_2[0]], [
-                           pt2_1[1], pt2_2[1]], linewidth=1.5, c="Black")
+        line1 = plt.Line2D([pt1_1[0], pt1_2[0]], [pt1_1[1], pt1_2[1]], linewidth=1.5, c="Black")
+        line2 = plt.Line2D([pt2_1[0], pt2_2[0]], [pt2_1[1], pt2_2[1]], linewidth=1.5, c="Black")
 
         # draw electron polarization
-        q0 = (self.get_activation(time) / 2) * \
-            (1 - self.get_polarization(time))
+        q0 = (self.get_activation(time) / 2) * (1 - self.get_polarization(time))
         qN = 1 - self.get_activation(time)
-        q1 = (self.get_activation(time) / 2) * \
-            (1 + self.get_polarization(time))
+        q1 = (self.get_activation(time) / 2) * (1 + self.get_polarization(time))
 
         # print(q0, qN, q1)
 
@@ -289,12 +282,9 @@ class qca_cell:
         else:
             color = "red"
 
-        e0 = plt.Circle(q0_pos[:2], q0 * scalefactor *
-                        radius, ec=color, fc=color)
-        eN = plt.Circle(qN_pos[:2], qN * scalefactor *
-                        radius * 3 / 4, ec=color, fc=color)
-        e1 = plt.Circle(q1_pos[:2], q1 * scalefactor *
-                        radius, ec=color, fc=color)
+        e0 = plt.Circle(q0_pos[:2], q0 * scalefactor * radius, ec=color, fc=color)
+        eN = plt.Circle(qN_pos[:2], qN * scalefactor * radius * 3 / 4, ec=color, fc=color)
+        e1 = plt.Circle(q1_pos[:2], q1 * scalefactor * radius, ec=color, fc=color)
 
         # add everything to patches list
         patches = [line1, line2, q0_site, qN_site, q1_site, e0, eN, e1]

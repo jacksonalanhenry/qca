@@ -13,10 +13,17 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Set up Python 3.11
-      uses: actions/setup-python@v3
+      #- name: Set up Python 3.11
+      #uses: actions/setup-python@v3
+        #with:
+        #    python-version: '3.11'
+    - name: Setup Mambaforge
+      uses: conda-incubator/setup-miniconda@v2
       with:
-        python-version: '3.11'
+        miniforge-variant: Mambaforge
+        miniforge-version: latest
+        activate-environment: base
+        use-mamba: true
     - name: Add conda to system path
       run: |
         # $CONDA is an environment variable pointing to the root of the miniconda directory

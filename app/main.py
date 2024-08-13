@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from cell_defs.qca_cell import qca_cell
+from cell_defs import qca_cell
 import matplotlib.pyplot as plt
 import numpy as np
 

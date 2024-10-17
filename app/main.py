@@ -34,10 +34,10 @@ cell3.angle = 90
 
 circuit = [driver, cell1, cell2, cell3]
 for cell in circuit:
-    cell.electric_field = [0,0,0.125]
+    cell.electric_field = [0,0,1.5]
 
-cell1.neighbor_list = np.array([driver])
-cell2.neighbor_list = np.array([cell1])
+cell1.neighbor_list = np.array([driver, cell2])
+cell2.neighbor_list = np.array([cell1, cell3])
 cell3.neighbor_list = np.array([cell2])
 
 cell1.calc_hamiltonian()
@@ -49,6 +49,32 @@ cell2.calc_polarization_activation()
 cell3.calc_hamiltonian()
 cell3.calc_polarization_activation()
 
+cell1.calc_hamiltonian()
+cell1.calc_polarization_activation()
+
+cell2.calc_hamiltonian()
+cell2.calc_polarization_activation()
+
+cell3.calc_hamiltonian()
+cell3.calc_polarization_activation()
+
+cell1.calc_hamiltonian()
+cell1.calc_polarization_activation()
+
+cell2.calc_hamiltonian()
+cell2.calc_polarization_activation()
+
+cell3.calc_hamiltonian()
+cell3.calc_polarization_activation()
+
+cell1.calc_hamiltonian()
+cell1.calc_polarization_activation()
+
+cell2.calc_hamiltonian()
+cell2.calc_polarization_activation()
+
+cell3.calc_hamiltonian()
+cell3.calc_polarization_activation()
 for cell in circuit:
     cell.print_cell()
     cell.draw_cell(axes)
